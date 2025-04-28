@@ -8,7 +8,7 @@ interface Params {
   id: string;
 }
 
-export async function PATCH(request: Request, { params }: { params: Params }) {
+export async function PATCH(request: Request, { params }: { params: any }) {
   try {
     const { id } = params;
     const { roleId, password } = await request.json();
@@ -46,4 +46,4 @@ export async function PATCH(request: Request, { params }: { params: Params }) {
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
   }
-} 
+}
