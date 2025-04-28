@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   env: {
     PORT: process.env.PORT || '3000',
   },
-  server: {
-    port: parseInt(process.env.PORT || '3000', 10),
+  experimental: {
+    serverComponentsExternalPackages: [],
   },
 };
 
