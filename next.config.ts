@@ -5,9 +5,6 @@ const nextConfig: NextConfig = {
   env: {
     PORT: process.env.PORT || '3000',
   },
-  experimental: {
-    serverExternalPackages: [],
-  },
 };
 
 export default nextConfig;
