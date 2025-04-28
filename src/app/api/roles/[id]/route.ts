@@ -3,13 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-type RouteParams = {
-  params: {
-    id: string;
-  };
-};
-
-export async function DELETE(request: Request, { params }: RouteParams) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const { id } = params;
     await prisma.role.delete({
@@ -24,7 +21,10 @@ export async function DELETE(request: Request, { params }: RouteParams) {
   }
 }
 
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const { id } = params;
     const { name } = await request.json();
