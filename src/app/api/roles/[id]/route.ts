@@ -5,10 +5,10 @@ const prisma = new PrismaClient();
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = params;
     await prisma.role.delete({
       where: {
         id: id,
@@ -23,10 +23,10 @@ export async function DELETE(
 
 export async function PUT(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = params;
     const { name } = await request.json();
 
     // Special case for admin role

@@ -21,7 +21,6 @@ const Navigation = () => {
         const user = await response.json();
         setUserRole(user.role?.name || null);
       } else {
-        console.error('Failed to fetch user role');
         setUserRole(null);
       }
     } else {

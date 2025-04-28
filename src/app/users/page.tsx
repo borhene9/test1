@@ -4,6 +4,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import bcrypt from 'bcryptjs';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 interface User {
   id: string;
@@ -40,14 +43,12 @@ const UsersPage = () => {
   const fetchUsers = useCallback(async () => {
     const response = await fetch('/api/users');
     const users = await response.json();
-    console.log('Fetched users:', users);
     setUsers(users);
   }, []);
 
   const fetchRoles = useCallback(async () => {
     const response = await fetch('/api/roles');
     const roles = await response.json();
-    console.log('Fetched roles:', roles);
     setRoles(roles);
   }, []);
 
@@ -58,33 +59,19 @@ const UsersPage = () => {
 
   // Helper function to get role name
   const getRoleName = (roleId: string) => {
-    console.log('Getting role name for ID:', roleId);
-    console.log('Available roles:', JSON.stringify(roles, null, 2));
-    
     const role = roles.find(r => r.id === roleId);
-    console.log('Found role:', JSON.stringify(role, null, 2));
-    
     if (!role) {
-      console.log('No role found for ID:', roleId);
       return roleId;
     }
-    
     return role.name;
   };
 
   // Helper function to get role ID from name
   const getRoleId = (roleName: string) => {
-    console.log('Getting role ID for name:', roleName);
-    console.log('Available roles:', JSON.stringify(roles, null, 2));
-    
     const role = roles.find(r => r.name === roleName);
-    console.log('Found role:', JSON.stringify(role, null, 2));
-    
     if (!role) {
-      console.log('No role found for name:', roleName);
       return roleName;
     }
-    
     return role.id;
   };
 
@@ -189,7 +176,6 @@ const UsersPage = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {users.map((user) => {
           const roleName = getRoleName(user.roleId);
-          console.log('User role name:', roleName);
           return (
             <div key={user.id} className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
               <div>

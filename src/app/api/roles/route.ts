@@ -10,10 +10,8 @@ export async function GET() {
         name: 'asc',
       },
     });
-    console.log('Fetched roles from database:', JSON.stringify(roles, null, 2));
     return NextResponse.json(roles);
   } catch (error) {
-    console.error(error);
     return NextResponse.json({ error: 'Failed to fetch roles' }, { status: 500 });
   }
 }

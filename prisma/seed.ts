@@ -24,13 +24,10 @@ async function main() {
       roleId: adminRole.id,
     },
   });
-
-  console.log('User created:', user);
 }
 
 main()
   .catch((e) => {
-    console.error(e);
     process.exit(1);
   })
   .finally(async () => {

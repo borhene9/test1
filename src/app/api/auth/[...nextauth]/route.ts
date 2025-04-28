@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-const authOptions: AuthOptions = {
+export const authOptions: AuthOptions = {
   session: {
     strategy: "jwt",
   },
@@ -54,7 +54,6 @@ const authOptions: AuthOptions = {
         token.username = user.username;
         token.id = user.id;
         token.role = user.role;
-        console.log('JWT token:', token);
       }
       return token;
     },
@@ -63,7 +62,6 @@ const authOptions: AuthOptions = {
         session.user.username = token.username;
         session.user.id = token.id;
         session.user.role = token.role;
-        console.log('Session:', session);
       }
       return session;
     },
