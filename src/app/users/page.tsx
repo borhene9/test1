@@ -77,6 +77,29 @@ const UsersPage = () => {
 
   const createUser = useCallback(async () => {
     setCreateMessage(null);
+
+    // Validation: username longer than 4 characters and not only numbers
+    if (username.length <= 4) {
+      setCreateMessage('Username must be longer than 4 characters.');
+      return;
+    }
+    if (/^\d+$/.test(username)) {
+      setCreateMessage('Username cannot be only numbers.');
+      return;
+    }
+
+    // Validation: password longer than 6 characters
+    if (password.length <= 6) {
+      setCreateMessage('Password must be longer than 6 characters.');
+      return;
+    }
+
+    // Validation: role must be selected
+    if (!selectedRole) {
+      setCreateMessage('Please select a role.');
+      return;
+    }
+
     setLoading(true);
     const res = await fetch('/api/users', {
       method: 'POST',
@@ -93,7 +116,11 @@ const UsersPage = () => {
       await fetchUsers();
     } else {
       const err = await res.json();
-      setCreateMessage(err.error || 'Failed to create user');
+      if (err.error === 'User already exists') {
+        setCreateMessage('User already exists.');
+      } else {
+        setCreateMessage(err.error || 'Failed to create user');
+      }
     }
   }, [username, password, selectedRole, fetchUsers]);
 
@@ -180,7 +207,7 @@ const UsersPage = () => {
             <div key={user.id} className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
               <div>
                 <div style={{ fontWeight: 600, fontSize: '1.1rem' }}>{user.username}</div>
-                <div style={{ color: '#888', fontSize: '0.95rem' }}>Role: {roleName}</div>
+                <div style={{ color: '#888', fontSize: '0.95rem', whiteSpace: 'nowrap' }}>Role: {roleName}</div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
                 <select
@@ -192,10 +219,10 @@ const UsersPage = () => {
                     <option key={role.id} value={role.id}>{role.name}</option>
                   ))}
                 </select>
-                <button className="btn" style={{ background: '#e53935' }} onClick={() => deleteUser(user.id)} disabled={loading}>
-                  Delete
+                <button className="btn btn-delete" style={{ minWidth: '120px' }} onClick={() => deleteUser(user.id)} disabled={loading}>
+                  Delete User
                 </button>
-                <button className="btn" onClick={() => changeUserPassword(user.id)} disabled={loading}>
+                <button className="btn" style={{ minWidth: '120px' }} onClick={() => changeUserPassword(user.id)} disabled={loading}>
                   Change Password
                 </button>
               </div>
@@ -215,7 +242,7 @@ const UsersPage = () => {
       )}
       <h1>Create User</h1>
       <div className="card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '1rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingRight: '2rem' }}>
           <label htmlFor="username" style={{ color: '#333', fontWeight: 500 }}>Username</label>
           <input
             id="username"
@@ -226,7 +253,7 @@ const UsersPage = () => {
             className="input-field"
           />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingRight: '2rem' }}>
           <label htmlFor="password" style={{ color: '#333', fontWeight: 500 }}>Password</label>
           <input
             id="password"

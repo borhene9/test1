@@ -82,7 +82,7 @@ export default async function Welcome() {
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2.5rem 2rem', minWidth: 350 }}>
         <Image src="/logo.png" alt="Amen Bank Logo" width={120} height={120} />
         <h1 style={{ textAlign: 'center', marginBottom: 0 }}>Welcome{session?.user?.username ? `, ${session.user.username}` : ''}!</h1>

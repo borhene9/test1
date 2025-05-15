@@ -33,8 +33,12 @@ export async function POST(request: Request) {
       },
     });
     return NextResponse.json(user);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+    if (error.code === 'P2002') {
+      // Unique constraint failed
+      return NextResponse.json({ error: 'User already exists' }, { status: 400 });
+    }
     return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
   }
 }

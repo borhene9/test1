@@ -39,7 +39,7 @@ export default function SignIn() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="signin-page-main-content-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: '2rem' }}>
       <div className="login-container">
         <Image src="/logo.png" alt="Amen Bank Logo" width={80} height={80} />
         <h1>Sign In</h1>

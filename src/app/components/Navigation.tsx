@@ -38,6 +38,7 @@ const Navigation = () => {
     const baseItems = [
       { href: '/dashboard', label: 'Dashboard' },
       { href: '/predictive-analysis', label: 'Predictive Analysis' },
+      { href: '/chatbot', label: 'AI Assistant' },
     ];
 
     // Check if the user's role is admin (either by name or ID)
@@ -83,7 +84,7 @@ const Navigation = () => {
               <button onClick={handleSignOut} className="btn">Sign out</button>
             </>
           ) : (
-            <Link href="/auth/signin" className="btn">Sign in</Link>
+            pathname !== '/auth/signin' && <Link href="/auth/signin" className="btn">Sign in</Link>
           )}
         </div>
       </div>

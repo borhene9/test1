@@ -25,3 +25,231 @@ model Role {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Dim_Time {
+  TimeID              String   @id @db.VarChar(8)
+  FullDate            DateTime
+  Year                Int
+  SemesterOfYear      Int
+  QuarterOfYear       Int
+  MonthOfYear         Int
+  MonthName           String   @db.VarChar(20)
+  DayOfYear           Int
+  DayOfMonth          Int
+  DayOfWeekMondayStart Int
+  DayName             String   @db.VarChar(10)
+  WeekOfYear          Int
+  IsLastDayOfMonth    Boolean
+  IsLeapYear          Boolean
+  IsWeekend           Boolean
+
+  @@map("Dim_Time")
+}
+
+model Dim_Agency {
+  AgencyID    String   @id @db.VarChar(10)
+  AgencyName  String   @db.VarChar(100)
+  Address     String?  @db.VarChar(255)
+  Zone        String?  @db.VarChar(50)
+
+  @@map("Dim_Agency")
+}
+
+model Dim_Employee {
+  EmployeeID    String   @id @db.VarChar(10)
+  EmployeeName  String?  @db.VarChar(100)
+  Function      String?  @db.VarChar(50)
+  Role          String?  @db.VarChar(50)
+  AgencyID      String?  @db.VarChar(10)
+  Agency        Dim_Agency? @relation(fields: [AgencyID], references: [AgencyID])
+
+  @@map("Dim_Employee")
+}
+
+model Dim_Segment {
+  SegmentID        String   @id @db.VarChar(10)
+  SegmentName      String   @db.VarChar(100)
+  SegmentCategory  String?  @db.VarChar(50)
+
+  @@map("Dim_Segment")
+}
+
+model Dim_Customer {
+  CustomerID            String   @id @db.VarChar(20)
+  FirstName            String?  @db.VarChar(100)
+  LastName             String?  @db.VarChar(100)
+  Nationality          String?  @db.VarChar(5)
+  IdTypeDescription    String?  @db.VarChar(50)
+  Identifier           String?  @db.VarChar(50)
+  CustomerNature       String?  @db.VarChar(20)
+  Gender               String?  @db.Char(1)
+  MaritalStatus        String?  @db.VarChar(20)
+  PostalCode           String?  @db.VarChar(10)
+  Address              String?  @db.VarChar(255)
+  Country              String?  @db.VarChar(5)
+  ActivityCode         String?  @db.VarChar(10)
+  CreationTimeID       String?  @db.VarChar(8)
+  ResponsibleEmployeeID String?  @db.VarChar(10)
+  AgencyID             String?  @db.VarChar(10)
+  SegmentID            String?  @db.VarChar(10)
+  CreationTime         Dim_Time? @relation("CustomerCreation", fields: [CreationTimeID], references: [TimeID])
+  ResponsibleEmployee  Dim_Employee? @relation(fields: [ResponsibleEmployeeID], references: [EmployeeID])
+  Agency               Dim_Agency? @relation(fields: [AgencyID], references: [AgencyID])
+  Segment              Dim_Segment? @relation(fields: [SegmentID], references: [SegmentID])
+
+  @@map("Dim_Customer")
+}
+
+model Dim_Account {
+  AccountID            String   @id @db.VarChar(20)
+  AccountTypeCode      String?  @db.VarChar(5)
+  AccountTypeDescription String?  @db.VarChar(100)
+  CurrencyCode         String?  @db.VarChar(5)
+  State                String?  @db.VarChar(20)
+  CreationTimeID       String?  @db.VarChar(8)
+  ValidationTimeID     String?  @db.VarChar(8)
+  CustomerID           String   @db.VarChar(20)
+  AgencyID             String   @db.VarChar(10)
+  CreationTime         Dim_Time? @relation("AccountCreation", fields: [CreationTimeID], references: [TimeID])
+  ValidationTime       Dim_Time? @relation("AccountValidation", fields: [ValidationTimeID], references: [TimeID])
+  Customer             Dim_Customer @relation(fields: [CustomerID], references: [CustomerID])
+  Agency               Dim_Agency @relation(fields: [AgencyID], references: [AgencyID])
+
+  @@map("Dim_Account")
+}
+
+model Dim_Product {
+  ProductID    String   @id @db.VarChar(50)
+  ProductName  String   @db.VarChar(100)
+  ProductType  String   @db.VarChar(30)
+
+  @@map("Dim_Product")
+}
+
+model Fact_Transaction {
+  TransactionFactID      BigInt   @id @default(autoincrement())
+  TransactionIdentifier  String   @unique @db.VarChar(50)
+  TransactionTimeID      String   @db.VarChar(8)
+  SourceAccountID        String   @db.VarChar(20)
+  DestinationAccountID   String?  @db.VarChar(20)
+  SourceAgencyID         String   @db.VarChar(10)
+  SourceCustomerID       String   @db.VarChar(20)
+  TransactionAmount      Decimal  @db.Decimal(18, 2)
+  TransactionType        String?  @db.VarChar(20)
+  TransactionTime        Dim_Time @relation(fields: [TransactionTimeID], references: [TimeID])
+  SourceAccount          Dim_Account @relation("TransactionSource", fields: [SourceAccountID], references: [AccountID])
+  DestinationAccount     Dim_Account? @relation("TransactionDestination", fields: [DestinationAccountID], references: [AccountID])
+  SourceAgency           Dim_Agency @relation(fields: [SourceAgencyID], references: [AgencyID])
+  SourceCustomer         Dim_Customer @relation(fields: [SourceCustomerID], references: [CustomerID])
+
+  @@map("Fact_Transaction")
+}
+
+model Fact_Resources {
+  ResourcesFactID        BigInt   @id @default(autoincrement())
+  SnapshotTimeID         String   @db.VarChar(8)
+  AccountID              String   @db.VarChar(20)
+  AgencyID               String   @db.VarChar(10)
+  CustomerID             String   @db.VarChar(20)
+  CurrentResources       Decimal? @db.Decimal(18, 2)
+  PreviousMonthResources Decimal? @db.Decimal(18, 2)
+  PreviousYearResources  Decimal? @db.Decimal(18, 2)
+  SnapshotTime           Dim_Time @relation(fields: [SnapshotTimeID], references: [TimeID])
+  Account                Dim_Account @relation(fields: [AccountID], references: [AccountID])
+  Agency                 Dim_Agency @relation(fields: [AgencyID], references: [AgencyID])
+  Customer               Dim_Customer @relation(fields: [CustomerID], references: [CustomerID])
+
+  @@unique([SnapshotTimeID, AccountID])
+  @@map("Fact_Resources")
+}
+
+model Fact_Objectives {
+  ObjectivesFactID         BigInt   @id @default(autoincrement())
+  MonthTimeID              String   @db.VarChar(8)
+  DataEntryTimeID          String?  @db.VarChar(8)
+  EmployeeID               String   @db.VarChar(10)
+  AgencyID                 String   @db.VarChar(10)
+  TargetAccountOpenings    Int?
+  TargetEER                Int?
+  TargetPackSales          Int?
+  TargetBancassuranceSales Int?
+  TargetResourceGrowth     Decimal? @db.Decimal(18, 2)
+  TargetEngagementValue    Decimal? @db.Decimal(18, 2)
+  MonthTime                Dim_Time @relation("ObjectiveMonth", fields: [MonthTimeID], references: [TimeID])
+  DataEntryTime            Dim_Time? @relation("ObjectiveEntry", fields: [DataEntryTimeID], references: [TimeID])
+  Employee                 Dim_Employee @relation(fields: [EmployeeID], references: [EmployeeID])
+  Agency                   Dim_Agency @relation(fields: [AgencyID], references: [AgencyID])
+
+  @@map("Fact_Objectives")
+}
+
+model Fact_Product_Subscription {
+  ProductSubscriptionFactID  BigInt   @id @default(autoincrement())
+  ActivationTimeID          String   @db.VarChar(8)
+  RequestTimeID             String?  @db.VarChar(8)
+  DataEntryTimeID           String?  @db.VarChar(8)
+  ConfirmationTimeID        String?  @db.VarChar(8)
+  ExpirationTimeID          String?  @db.VarChar(8)
+  AccountID                 String   @db.VarChar(20)
+  ProductID                 String   @db.VarChar(50)
+  AgencyID                  String   @db.VarChar(10)
+  CustomerID                String   @db.VarChar(20)
+  Status                    String   @db.VarChar(20)
+  ContractIdentifier        String?  @db.VarChar(50)
+  ContractReference         String?  @db.VarChar(50)
+  CardInstanceIdentifier    String?  @db.VarChar(100)
+  ActivationCount           Int      @default(1)
+  ActivationTime            Dim_Time @relation("SubscriptionActivation", fields: [ActivationTimeID], references: [TimeID])
+  RequestTime               Dim_Time? @relation("SubscriptionRequest", fields: [RequestTimeID], references: [TimeID])
+  DataEntryTime             Dim_Time? @relation("SubscriptionEntry", fields: [DataEntryID], references: [TimeID])
+  ConfirmationTime          Dim_Time? @relation("SubscriptionConfirmation", fields: [ConfirmationTimeID], references: [TimeID])
+  ExpirationTime            Dim_Time? @relation("SubscriptionExpiration", fields: [ExpirationTimeID], references: [TimeID])
+  Account                   Dim_Account @relation(fields: [AccountID], references: [AccountID])
+  Product                   Dim_Product @relation(fields: [ProductID], references: [ProductID])
+  Agency                    Dim_Agency @relation(fields: [AgencyID], references: [AgencyID])
+  Customer                  Dim_Customer @relation(fields: [CustomerID], references: [CustomerID])
+
+  @@map("Fact_Product_Subscription")
+}
+
+model Fact_Credit_Details {
+  CreditDetailsFactID    BigInt   @id @default(autoincrement())
+  CreditNumber           String   @unique @db.VarChar(20)
+  RequestTimeID          String?  @db.VarChar(8)
+  StudyTimeID            String?  @db.VarChar(8)
+  ConfirmationTimeID     String?  @db.VarChar(8)
+  DisbursementTimeID     String?  @db.VarChar(8)
+  AccountID              String   @db.VarChar(20)
+  ProductID              String   @db.VarChar(50)
+  AgencyID               String   @db.VarChar(10)
+  CustomerID             String   @db.VarChar(20)
+  ApprovedAmount         Decimal? @db.Decimal(18, 2)
+  DurationMonths         Int?
+  CreditCategory         String?  @db.VarChar(5)
+  RequestTime            Dim_Time? @relation("CreditRequest", fields: [RequestTimeID], references: [TimeID])
+  StudyTime              Dim_Time? @relation("CreditStudy", fields: [StudyTimeID], references: [TimeID])
+  ConfirmationTime       Dim_Time? @relation("CreditConfirmation", fields: [ConfirmationTimeID], references: [TimeID])
+  DisbursementTime       Dim_Time? @relation("CreditDisbursement", fields: [DisbursementTimeID], references: [TimeID])
+  Account                Dim_Account @relation(fields: [AccountID], references: [AccountID])
+  Product                Dim_Product @relation(fields: [ProductID], references: [ProductID])
+  Agency                 Dim_Agency @relation(fields: [AgencyID], references: [AgencyID])
+  Customer               Dim_Customer @relation(fields: [CustomerID], references: [CustomerID])
+
+  @@map("Fact_Credit_Details")
+}
+
+model Fact_Customer_Activity {
+  CustomerActivityFactID  BigInt   @id @default(autoincrement())
+  SnapshotTimeID         String   @db.VarChar(8)
+  CustomerID             String   @db.VarChar(20)
+  AgencyID               String   @db.VarChar(10)
+  AgencyVisits           Int?
+  DigitalConnections     Int?
+  MobileAppInteractions  Int?
+  SnapshotTime           Dim_Time @relation(fields: [SnapshotTimeID], references: [TimeID])
+  Customer               Dim_Customer @relation(fields: [CustomerID], references: [CustomerID])
+  Agency                 Dim_Agency @relation(fields: [AgencyID], references: [AgencyID])
+
+  @@unique([SnapshotTimeID, CustomerID])
+  @@map("Fact_Customer_Activity")
+}
